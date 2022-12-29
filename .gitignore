@@ -1,0 +1,6 @@
+# Symlinks
+workbench
+bookshelf
+
+# Garbage
+.DS_Store

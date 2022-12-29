@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+
+import os, sys
+import mutagen
+import mutagen.mp4
+
+book = os.environ.get('BOOK', None)
+if book is None and len(sys.argv) == 2:
+    book = sys.argv[1]
+
+cover_art = f"workbench/Books/{book}.png"
+if not os.path.exists(cover_art):
+    exit(1)
+cover_fmt = mutagen.mp4.AtomDataType.PNG
+
+m4b = mutagen.File(f"workbench/Books/{book}.m4b")
+if not os.path.exists(m4b.filename):
+    exit(2)
+
+with open(cover_art, 'rb') as fh:
+    art = mutagen.mp4.MP4Cover(
+        data=fh.read(),
+        imageformat=cover_fmt,
+    )
+
+m4b.tags['covr'] = [bytes(art)]
+m4b.save()

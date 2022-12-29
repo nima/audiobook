@@ -1,0 +1,30 @@
+#!/bin/bash
+
+: ${BOOK?}
+
+> workbench/Books/${BOOK}.lst
+> /tmp/_${BOOK}.chp
+
+let t1=0
+while read line; do
+    if [ "${line//=*}" != "${line}" ]; then
+	    echo "${line}" >> /tmp/_${BOOK}.chp
+        continue
+    fi
+
+    IFS='|' read filename description <<< "${line}"
+
+    let t2=t1+$(sed -n 's/\.//p' /tmp/Staging/${filename}.len)
+    
+    cat <<! >> /tmp/_${BOOK}.chp
+
+[CHAPTER]
+TIMEBASE=1/1000000
+START=$t1
+END=$t2
+TITLE=${description}
+!
+    let t1=t2
+
+    printf "file 'workbench/Outgoing/%s.mp3'\n" "${filename}" >> workbench/Books/${BOOK}.lst
+done < <(tail -n +1 workbench/Books/${BOOK}.cfg)
